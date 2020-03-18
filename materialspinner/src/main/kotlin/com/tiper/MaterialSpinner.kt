@@ -22,22 +22,16 @@ import android.support.v4.text.TextUtilsCompat
 import android.support.v4.view.AbsSavedState
 import android.support.v4.view.ViewCompat
 import android.support.v7.widget.ListPopupWindow
+import android.text.Editable
 import android.text.InputType
+import android.text.TextWatcher
 import android.util.AttributeSet
-import android.view.Gravity
-import android.view.SoundEffectConstants
-import android.view.View
+import android.view.*
 import android.view.View.OnFocusChangeListener
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
 import android.view.accessibility.AccessibilityEvent
-import android.widget.ListAdapter
-import android.widget.ListView
-import android.widget.SpinnerAdapter
-import android.widget.AdapterView
-import android.widget.TextView
+import android.widget.*
 import com.tiper.materialspinner.R
-import java.util.Locale
+import java.util.*
 
 /**
  * Layout which wraps an [TextInputEditText] to show a floating label when the hint is hidden due to
@@ -86,7 +80,7 @@ open class MaterialSpinner @JvmOverloads constructor(
     /**
      * The view that will display the selected item.
      */
-    private val editText = TextInputEditText(getContext())
+    private val editText = CustomEditText(getContext(), null)
 
     /**
      * Extended [android.widget.Adapter] that is the bridge between this Spinner and its data.
@@ -142,6 +136,7 @@ open class MaterialSpinner @JvmOverloads constructor(
                 }
             }
         }
+
     /**
      * Sets the [prompt] to display when the dialog is shown.
      *
@@ -166,6 +161,13 @@ open class MaterialSpinner @JvmOverloads constructor(
      */
     val selectedItemId: Long
         get() = popup.getItemId(selection)
+
+    /**
+     * Set spinner is searchable or not
+     * @return Is spinner searchable or not
+     * When it's searchable, user can filter items with entered text in edit text
+     */
+    var isSearchable: Boolean = false
 
     init {
         context.obtainStyledAttributes(attrs, R.styleable.MaterialSpinner).run {
@@ -233,6 +235,7 @@ open class MaterialSpinner @JvmOverloads constructor(
                 intArrayOf(R.attr.colorControlActivated, R.attr.colorControlNormal)
             ).run {
                 val activated = getColor(0, 0)
+
                 @SuppressLint("ResourceType")
                 val normal = getColor(1, 0)
                 recycle()
@@ -257,6 +260,9 @@ open class MaterialSpinner @JvmOverloads constructor(
                 setDrawable(it)
             }
 
+            //init searchable
+            isSearchable = getBoolean(R.styleable.MaterialSpinner_searchable, false)
+
             recycle()
         }
 
@@ -268,13 +274,13 @@ open class MaterialSpinner @JvmOverloads constructor(
             }
         })
 
-        // Disable input.
-        editText.maxLines = 1
+        // Disable edit text
         editText.inputType = InputType.TYPE_NULL
-
         editText.setOnClickListener {
             popup.show(selection)
         }
+
+        editText.maxLines = 1
 
         editText.onFocusChangeListener.let {
             editText.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
@@ -514,10 +520,48 @@ open class MaterialSpinner @JvmOverloads constructor(
                 return
             }
 
+            var topPanel: View? = null
+            if (isSearchable) {
+                topPanel = LayoutInflater.from(context).inflate(
+                    R.layout.search_view,
+                    null, false
+                );
+                val edittext = topPanel.findViewById<EditText>(R.id.inputSearch)
+                val title = topPanel.findViewById<TextView>(R.id.txtTitle)
+
+                ((adapter as DropDownAdapter).mainAdapter as? Filterable)?.let {
+                    it.filter?.filter(null)
+                }
+
+                val filterTextWatcher = object : TextWatcher {
+                    override fun afterTextChanged(p0: Editable?) {
+                        ((adapter as DropDownAdapter).mainAdapter as? Filterable)?.let {
+                            it.filter?.filter(p0.toString())
+                        }
+
+                    }
+
+                    override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    }
+
+                    override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+                    }
+                }
+                edittext.removeTextChangedListener(filterTextWatcher)
+                edittext.addTextChangedListener(filterTextWatcher)
+                prompt?.let {
+                    title.text = it
+                    title.visibility = View.VISIBLE
+                }
+            }
+
             popup = adapter?.let { adapter ->
                 AlertDialog.Builder(context).let { builder ->
                     prompt?.let { prompt ->
                         builder.setTitle(prompt)
+                    }
+                    topPanel?.let {
+                        builder.setCustomTitle(topPanel)
                     }
                     builder.setSingleChoiceItems(adapter, position, this).create().apply {
                         popup?.listView?.let {
@@ -532,6 +576,13 @@ open class MaterialSpinner @JvmOverloads constructor(
                     it.show()
                 }
             }
+            if (isSearchable)
+            //for show keyboard
+                popup?.window?.clearFlags(
+                    WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                            WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM
+                )
+
         }
 
         override fun dismiss() {
@@ -569,9 +620,10 @@ open class MaterialSpinner @JvmOverloads constructor(
         ListPopupWindow(context, attrs), SpinnerPopup {
 
         init {
-            inputMethodMode = INPUT_METHOD_NOT_NEEDED
+            inputMethodMode = INPUT_METHOD_FROM_FOCUSABLE
             anchorView = this@MaterialSpinner
-            isModal = true
+            isModal = false
+            setDropDownGravity(Gravity.BOTTOM)
             promptPosition = POSITION_PROMPT_ABOVE
             setOverlapAnchor(false)
 
@@ -693,18 +745,20 @@ open class MaterialSpinner @JvmOverloads constructor(
             return adapter?.getItemId(position) ?: INVALID_POSITION.toLong()
         }
 
-        override fun isShowing() = popup?.isShowing == true
+        override fun isShowing(): Boolean {
+            return popup?.isShowing == true
+        }
     }
 
     /**
      * Creates a new ListAdapter wrapper for the specified adapter.
      *
-     * @param [adapter] The SpinnerAdapter to transform into a ListAdapter.
+     * @param [mainAdapter] The SpinnerAdapter to transform into a ListAdapter.
      * @param [dropDownTheme] The theme against which to inflate drop-down views, may be {@null}
      * to use default theme.
      */
     private inner class DropDownAdapter(
-        private val adapter: SpinnerAdapter?,
+        val mainAdapter: SpinnerAdapter?,
         dropDownTheme: Resources.Theme?
     ) : ListAdapter, SpinnerAdapter {
 
@@ -712,24 +766,24 @@ open class MaterialSpinner @JvmOverloads constructor(
 
         init {
 
-            listAdapter = when (val it = adapter) {
+            listAdapter = when (val it = mainAdapter) {
                 is ListAdapter -> it
                 else -> null
             }
 
             dropDownTheme?.let {
-                when (adapter) {
+                when (mainAdapter) {
                     is android.support.v7.widget.ThemedSpinnerAdapter -> {
-                        if (adapter.dropDownViewTheme != it) {
-                            adapter.dropDownViewTheme = it
+                        if (mainAdapter.dropDownViewTheme != it) {
+                            mainAdapter.dropDownViewTheme = it
                         }
                     }
                     else -> {
                         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
-                            when (adapter) {
+                            when (mainAdapter) {
                                 is android.widget.ThemedSpinnerAdapter -> {
-                                    if (adapter.dropDownViewTheme == null) {
-                                        adapter.dropDownViewTheme = it
+                                    if (mainAdapter.dropDownViewTheme == null) {
+                                        mainAdapter.dropDownViewTheme = it
                                     }
                                 }
                             }
@@ -740,11 +794,11 @@ open class MaterialSpinner @JvmOverloads constructor(
         }
 
         override fun getCount(): Int {
-            return adapter?.count ?: 0
+            return mainAdapter?.count ?: 0
         }
 
         override fun getItem(position: Int): Any? {
-            return adapter?.let {
+            return mainAdapter?.let {
                 if (position > INVALID_POSITION && position < it.count) it.getItem(
                     position
                 ) else null
@@ -752,7 +806,7 @@ open class MaterialSpinner @JvmOverloads constructor(
         }
 
         override fun getItemId(position: Int): Long {
-            return adapter?.getItemId(position) ?: INVALID_POSITION.toLong()
+            return mainAdapter?.getItemId(position) ?: INVALID_POSITION.toLong()
         }
 
         override fun getView(position: Int, convertView: View?, parent: ViewGroup): View? {
@@ -760,19 +814,19 @@ open class MaterialSpinner @JvmOverloads constructor(
         }
 
         override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup): View? {
-            return adapter?.getDropDownView(position, convertView, parent)
+            return mainAdapter?.getDropDownView(position, convertView, parent)
         }
 
         override fun hasStableIds(): Boolean {
-            return adapter?.hasStableIds() ?: false
+            return mainAdapter?.hasStableIds() ?: false
         }
 
         override fun registerDataSetObserver(observer: DataSetObserver) {
-            adapter?.registerDataSetObserver(observer)
+            mainAdapter?.registerDataSetObserver(observer)
         }
 
         override fun unregisterDataSetObserver(observer: DataSetObserver) {
-            adapter?.unregisterDataSetObserver(observer)
+            mainAdapter?.unregisterDataSetObserver(observer)
         }
 
         /**

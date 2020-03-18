@@ -42,7 +42,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/materialspinner_1"
-            app:spinnerMode="bottomsheet" />
+            app:searchable="true"
+            app:spinnerMode="dialog" />
 
         <FrameLayout
             android:layout_width="match_parent"

@@ -16,5 +16,6 @@
             <enum name="dropdown" value="1" />
             <enum name="bottomsheet" value="2" />
         </attr>
+        <attr name="searchable" format="boolean" />
     </declare-styleable>
 </resources>
