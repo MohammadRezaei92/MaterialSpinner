@@ -1,6 +1,12 @@
 Change Log
 ==========
 
+Version 1.4.2 *(2020-05-23)*
+----------------------------
+* Fix: Perform click method not triggering spinner.
+* Fix: Set ime options to never show keyboard.
+* Fix: Use default box stroke color for unfocused color.
+
 Version 1.4.1 *(2019-12-27)*
 ----------------------------
 * Fix: Issue where toString was not invoked for null items.
