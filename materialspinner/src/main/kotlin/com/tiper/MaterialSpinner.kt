@@ -33,15 +33,10 @@ import android.util.AttributeSet
 import android.view.*
 import android.view.View.OnFocusChangeListener
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
-import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
-import android.widget.AdapterView
-import android.widget.ListAdapter
-import android.widget.ListView
-import android.widget.SpinnerAdapter
-import android.widget.TextView
 import android.widget.*
+import android.widget.AdapterView
+import android.widget.ListView
 import com.tiper.materialspinner.R
 import java.util.*
 
@@ -296,7 +291,7 @@ open class MaterialSpinner @JvmOverloads constructor(
             editText.onFocusChangeListener = OnFocusChangeListener { v, hasFocus ->
                 v.handler?.post {
                     if (hasFocus) {
-                        v.performClick()
+                        popup.show(selection)
                     }
                     it?.onFocusChange(v, hasFocus)
                     onFocusChangeListener?.onFocusChange(this, hasFocus)

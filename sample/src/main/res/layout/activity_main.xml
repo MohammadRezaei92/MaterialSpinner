@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/materialspinner_1"
             app:searchable="true"
-            app:spinnerMode="dialog" />
+            app:spinnerMode="bottomsheet" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -96,6 +96,7 @@
             android:prompt="@string/app_name"
             android:src="@drawable/ic_selector_drawable"
             android:textColor="#0ff"
+            app:spinnerMode="bottomsheet"
             tools:text="lalala" />
 
         <FrameLayout
@@ -137,7 +138,7 @@
             android:gravity="left"
             android:hint="@string/materialspinner_3"
             android:prompt="@string/materialspinner"
-            app:spinnerMode="dialog"
+            app:spinnerMode="bottomsheet"
             app:srcCompat="@drawable/ic_selector_drawable" />
 
         <Spinner
@@ -155,6 +156,96 @@
             android:layout_marginTop="20dp"
             android:prompt="@string/app_name"
             android:spinnerMode="dropdown"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_10"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_0"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_20"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_30"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_4"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_5"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_6"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_7"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_8"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
+            app:spinnerMode="bottomsheet" />
+
+        <com.tiper.MaterialSpinner
+            android:id="@+id/material_spinner_9"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/materialspinner_1"
+            app:searchable="true"
             app:spinnerMode="bottomsheet" />
 
     </LinearLayout>
